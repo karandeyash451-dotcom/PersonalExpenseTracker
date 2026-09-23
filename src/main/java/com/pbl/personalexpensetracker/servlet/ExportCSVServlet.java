@@ -1,0 +1,78 @@
+package com.pbl.personalexpensetracker.servlet;
+
+import com.pbl.personalexpensetracker.dao.ExpenseDAO;
+import com.pbl.personalexpensetracker.model.Expense;
+import com.pbl.personalexpensetracker.model.User;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebServlet("/exportCSV")
+public class ExportCSVServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session =
+                request.getSession(false);
+
+        if(session == null ||
+           session.getAttribute("user") == null){
+
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        User user =
+                (User) session.getAttribute("user");
+
+        ExpenseDAO dao =
+                new ExpenseDAO();
+
+        List<Expense> expenses =
+                dao.getExpensesByUser(
+                        user.getUserId()
+                );
+
+        response.setContentType(
+                "text/csv"
+        );
+
+        response.setHeader(
+                "Content-Disposition",
+                "attachment; filename=expenses.csv"
+        );
+
+        PrintWriter out =
+                response.getWriter();
+
+        out.println(
+                "ID,Category,Amount,Description,Date"
+        );
+
+        for(Expense e : expenses){
+
+            out.println(
+                    e.getExpenseId() + "," +
+                    e.getCategory() + "," +
+                    e.getAmount() + "," +
+                    e.getDescription() + "," +
+                    e.getExpenseDate()
+            );
+        }
+
+        out.flush();
+        out.close();
+    }
+}
