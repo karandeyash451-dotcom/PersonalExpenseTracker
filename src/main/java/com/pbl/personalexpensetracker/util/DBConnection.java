@@ -5,12 +5,24 @@ import java.sql.DriverManager;
 
 public class DBConnection {
 
+    private static final String HOST =
+            System.getenv().getOrDefault("MYSQLHOST", "localhost");
+
+    private static final String PORT =
+            System.getenv().getOrDefault("MYSQLPORT", "3306");
+
+    private static final String DATABASE =
+            System.getenv().getOrDefault("MYSQLDATABASE", "expense_tracker");
+
+    private static final String USER =
+            System.getenv().getOrDefault("MYSQLUSER", "root");
+
+    private static final String PASSWORD =
+            System.getenv().getOrDefault("MYSQLPASSWORD", "root123");
+
     private static final String URL =
-            "jdbc:mysql://localhost:3306/expense_tracker";
-
-    private static final String USER = "root";
-
-    private static final String PASSWORD = "root123";
+            "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
+            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
     public static Connection getConnection() {
 
@@ -28,6 +40,7 @@ public class DBConnection {
         } catch (Exception e) {
 
             e.printStackTrace();
+
         }
 
         return null;
